@@ -269,11 +269,12 @@ Logs detalhados para auditoria
 Métricas de performance
 
 Detecção proativa de problemas
+```
 
 <div align="center">
 ⚡ Automatize processos repetitivos e foque no que realmente importa!
 
-https://img.shields.io/github/stars/HackMaster300/Sistema_de_Automacao_CMS_V1.0?style=social
+![](https://img.shields.io/github.com/HackMaster300/Sistema_de_Automacao_CMS_V1.0?style=social)
 
 
-</div> ```
+</div> 
