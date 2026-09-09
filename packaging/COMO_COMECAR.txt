@@ -1,0 +1,52 @@
+COMO COMEÇAR
+============
+
+Este pacote já vem pronto a usar — não precisa de instalar Python nem
+copiar ficheiros de configuração.
+
+1. TESTE SEM MEXER EM NADA (modo simulação)
+
+   Windows:  cms-automation-windows.exe --appsettings appsettings.yaml --dry-run
+   Linux:    ./cms-automation-linux --appsettings appsettings.yaml --dry-run
+   macOS:    ./cms-automation-macos --appsettings appsettings.yaml --dry-run
+
+   Isto não mexe no rato/teclado nem lê o ecrã — só confirma que tudo
+   está instalado e configurado corretamente.
+
+2. TESSERACT OCR
+
+   Se o passo 1 der erro a mencionar "Tesseract não encontrado":
+
+     Windows: instale a partir de
+              https://github.com/UB-Mannheim/tesseract/wiki
+     Linux:   sudo apt install tesseract-ocr
+     macOS:   brew install tesseract
+
+3. CALIBRE AS COORDENADAS PARA O SEU ECRÃ
+
+   As coordenadas em appsettings.yaml vêm com valores de exemplo — não
+   vão bater certo com o seu ecrã/instalação do CMS. Calibre com:
+
+   Windows:  calibrate-coordinates-windows.exe capture --appsettings appsettings.yaml
+   Linux:    ./calibrate-coordinates-linux capture --appsettings appsettings.yaml
+   macOS:    ./calibrate-coordinates-macos capture --appsettings appsettings.yaml
+
+   Para cada botão, posicione o rato sobre ele na janela do CMS e
+   pressione Enter. No fim, confirme para gravar.
+
+4. PREPARE OS SEUS DADOS
+
+   Edite (ou substitua) dados/identificadores.csv com os seus próprios
+   identificadores — uma coluna "identificador" chega, as colunas
+   "estado" e "processado_em" ficam a cargo do programa (é o checkpoint:
+   se o processo for interrompido, a próxima execução retoma sozinha a
+   partir do que ainda está "pendente").
+
+5. EXECUTE A SÉRIO
+
+   Windows:  cms-automation-windows.exe --appsettings appsettings.yaml --data dados/identificadores.csv
+   Linux:    ./cms-automation-linux --appsettings appsettings.yaml --data dados/identificadores.csv
+   macOS:    ./cms-automation-macos --appsettings appsettings.yaml --data dados/identificadores.csv
+
+Documentação completa, arquitetura e código-fonte:
+https://github.com/HackMaster300/Sistema_de_Automacao_CMS_V1.0

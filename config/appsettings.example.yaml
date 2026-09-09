@@ -1,0 +1,105 @@
+# appsettings.example.yaml
+#
+# Copie este ficheiro para appsettings.yaml e ajuste os valores para o
+# seu ambiente. appsettings.yaml NUNCA deve ser commitado (ver
+# .gitignore) — coordenadas de ecrã e caminhos variam por
+# máquina/resolução.
+#
+# Este ficheiro contém apenas configuração de "aplicação" (coordenadas,
+# OCR, tempos de espera). Os DADOS a processar (identificadores) vivem
+# à parte, num CSV ou Excel com checkpoint — ver data/sample_identifiers.csv
+# e a secção "Dados e checkpoint" no README.
+#
+# Não precisa de editar as coordenadas à mão: use
+#   python tools/calibrate_coordinates.py capture --appsettings config/appsettings.yaml
+# que captura a posição do rato em cada botão e grava aqui diretamente,
+# após confirmação sua.
+
+dry_run: false
+
+# Se true (recomendado por omissão), qualquer registo cujo OCR contenha
+# "suspeita de fraude" NÃO é processado automaticamente — fica marcado
+# nas estatísticas para revisão manual por um analista. Mude para false
+# apenas se tiver a certeza de que o preenchimento automático é seguro
+# no seu processo de negócio.
+require_confirmation_for_fraud_flag: true
+
+data_file: "../data/sample_identifiers.csv"  # pode ser .csv ou .xlsx — ver "Dados e checkpoint" no README
+log_dir: "../logs"
+
+ocr:
+  # "auto" tenta: 1) um Tesseract embutido ao lado do executável,
+  # 2) o Tesseract já instalado no sistema, 3) localizações típicas.
+  # Só defina um caminho exato aqui se o "auto" não funcionar no seu ambiente.
+  tesseract_cmd: "auto"
+  ocr_region:            { x: 41,  y: 526, width: 905, height: 145 }
+  confirmation_region:   { x: 442, y: 248, width: 87,  height: 16 }
+
+error_templates:
+  primary: "../assets/error_templates/erro.png"
+  secondary: "../assets/error_templates/erro1.png"
+  tertiary: "../assets/error_templates/erro2.png"
+  confidence_primary: 0.7
+  confidence_secondary: 0.5
+  confidence_tertiary: 0.7
+
+# Todas as coordenadas de UI usadas pela automação, com nomes legíveis.
+# Use tools/calibrate_coordinates.py para descobrir os valores certos
+# para a sua resolução/instalação do CMS.
+coordinates:
+  campo_pf:                    { x: 53,  y: 250 }
+  botao_contador:               { x: 366, y: 251 }
+  botao_ok_erro:                 { x: 846, y: 475 }
+  area_clique_confirmacao:      { x: 490, y: 404 }
+  botao_seguinte:                { x: 512, y: 735 }
+  botao_processamento:           { x: 351, y: 356 }
+  botao_processamento_seguinte:  { x: 507, y: 667 }
+  botao_imprimir:                 { x: 563, y: 191 }
+  botao_processamento_sim:       { x: 507, y: 667 }
+  botao_registado:               { x: 542, y: 360 }
+  botao_registado_seguinte:      { x: 507, y: 667 }
+  campo_registado_cmp1:         { x: 471, y: 180 }
+  campo_potencia:                { x: 807, y: 283 }
+  campo_propriedade:            { x: 791, y: 308 }
+  campo_gis_x:                   { x: 777, y: 332 }
+  campo_gis_y:                   { x: 777, y: 355 }
+  campo_estado_instalacao:      { x: 479, y: 393 }
+  campo_num_luz:                 { x: 775, y: 393 }
+  campo_quartos:                  { x: 775, y: 412 }
+  botao_registro:                { x: 507, y: 667 }
+  botao_registado_sim:           { x: 507, y: 667 }
+  botao_anterior:                 { x: 385, y: 734 }
+
+# Valores usados para preencher o formulário técnico do registo.
+# IMPORTANTE: no sistema original estes valores eram fixos para todos os
+# registos. Confirme com o processo de negócio real se isso é
+# apropriado para o seu caso, ou adapte o código para ler estes valores
+# de uma fonte real (ex: base de dados do contador) em vez de um valor
+# fixo — ver README, secção "Limitações conhecidas".
+form_defaults:
+  header_type_code: "r"
+  header_subtype_code: "v"
+  header_value_1: "2"
+  confirmation_expected_text: "22000 V"
+  confirmation_match_extra_key: "2"
+  status_flag_1: "s"
+  status_flag_2: "s"
+  block_code_a: "r"
+  block_code_year: "200"
+  block_code_month: "43"
+  block_code_day: "4"
+  block_code_year_2: "200"
+  power_rating: "2.2"
+  property_code: "172"
+  gis_x_offset: "2"
+  gis_y_offset: "1"
+  installation_state_flag: "s"
+  meter_last_digit: "8"
+  rooms_count: "4"
+  finalize_flag: "n"
+
+timing:
+  short_pause: 0.2
+  click_pause: 0.5
+  ocr_settle_pause: 1.0
+  error_check_pause: 1.0

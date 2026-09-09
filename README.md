@@ -1,280 +1,265 @@
-# 🤖 Sistema de Automação CMS V1.0
-
-> Sistema sofisticado de automação para processamento de dados em sistemas de gestão de clientes (CMS)
-
-![Python](https://img.shields.io/badge/Python-3.6+-blue.svg)
-![Automation](https://img.shields.io/badge/Automation-Desktop%20GUI-orange.svg)
-![Status](https://img.shields.io/badge/version-1.0-green.svg)
-![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-lightgrey.svg)
-
-## 📖 Sobre o Projeto
-
-Sistema de automação desenvolvido em Python para processar grandes volumes de registros em plataformas CMS (Customer Management Systems). A ferramenta automatiza tarefas repetitivas de inserção de dados com detecção inteligente de erros e processamento automatizado de fluxos de trabalho complexos.
-
-### ✨ Funcionalidades Principais
-
-- ✅ **Processamento em Lote** - Automação de múltiplos registros sequenciais
-- ✅ **OCR Inteligente** - Reconhecimento de texto em interfaces gráficas
-- ✅ **Detecção de Erros** - Identificação automática de falhas no sistema
-- ✅ **Navegação Automática** - Interação inteligente com elementos da interface
-- ✅ **Processamento Condicional** - Lógica adaptativa baseada no estado dos registros
-- ✅ **Logs Detalhados** - Monitoramento completo do processo de automação
-
-## 🛠️ Tecnologias Utilizadas
-
-### Linguagem Principal
-- **Python 3.6+** - Lógica principal de automação
-
-### Bibliotecas de Automação
-- **PyAutoGUI** - Controle de mouse e teclado
-- **Keyboard** - Detecção de eventos de teclado
-- **Pyperclip** - Manipulação da área de transferência
-
-### Processamento de Imagens & OCR
-- **Pytesseract** - Reconhecimento óptico de caracteres (OCR)
-- **PIL (Pillow)** - Processamento de imagens e capturas de tela
-
-### Utilitários
-- **Time** - Controle de delays e sincronização
-- **Re** - Processamento de expressões regulares
-- **Sys** - Controle de execução do programa
-
-## 📦 Instalação
-
-### Pré-requisitos
-```bash
-# Instalar Tesseract OCR
-# Windows: https://github.com/UB-Mannheim/tesseract/wiki
-# Linux: sudo apt install tesseract-ocr
-
-# Instalar dependências Python
-pip install pyautogui pyperclip keyboard pillow pytesseract
-Configuração do Tesseract
-python
-# Windows
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-
-# Linux
-pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
-🎯 Como Usar
-Execução Básica
-bash
-git clone https://github.com/HackMaster300/Sistema_de_Automacao_CMS_V1.0.git
-cd Sistema_de_Automacao_CMS_V1.0
-python cms.py
-or
-python cms_before.py
-
-Preparação do Ambiente
-Posicione a janela do CMS na área de trabalho
-
-Configure as coordenadas no script conforme sua resolução
-
-Prepare a lista de dados a serem processados
-
-Execute o script e monitore o processo
-
-Fluxo de Trabalho
-text
-1. Inserção de dados → 2. Verificação de erros → 3. Processamento OCR
-4. Análise de estado → 5. Ação condicional → 6. Próximo registro
-🔧 Funcionalidades Detalhadas
-🔍 Processamento de Dados
-Entrada Automática: Inserção sequencial de números de identificação
-
-Validação em Tempo Real: Detecção imediata de erros no sistema
-
-Fallback Inteligente: Mecanismos de recuperação para falhas
-
-📊 Sistema OCR Avançado
-python
-# Captura e análise de texto da interface
-screenshot = pyautogui.screenshot(region=area)
-texto_extraido = pytesseract.image_to_string(screenshot)
-🎮 Navegação Automatizada
-Cliques Precisos: Interação com elementos específicos da interface
-
-Preenchimento de Formulários: Automação completa de campos
-
-Navegação entre Telas: Fluxo automatizado entre diferentes seções
-
-⚡ Estados de Processamento
-O sistema detecta e age conforme o estado de cada registro:
-
-"Registado": Processamento completo
-
-"Em processamento": Ações específicas para pendências
-
-"Introduzido": Fluxo padrão de inserção
-
-📁 Estrutura do Código
-python
-cms.py
-├── Variáveis de Configuração
-│   ├── Coordenadas de interface
-│   ├── Caminhos de imagens de erro
-│   └── Lista de dados para processamento
-├── Processamento Principal
-│   ├── Inserção de dados
-│   ├── Detecção de erros
-│   ├── Captura OCR
-│   └── Análise de estado
-└── Fluxos Condicionais
-    ├── Registrado
-    ├── Em processamento
-    └── Introduzido
-⚙️ Configuração
-Coordenadas da Interface
-python
-# Exemplo de configuração de coordenadas
-x_pf, y_pf = 53, 250                    # Campo PF
-x_contador_btn, y_contador_btn = 366, 251 # Botão Contador
-x_ok_btn, y_ok_btn = 846, 475           # Botão OK de erro
-area = (41, 526, 905, 145)              # Área de captura OCR
-Imagens de Detecção de Erro
-python
-# Configurar caminhos das imagens de referência
-erro_img_path = "caminho/para/erro.png"
-erro_img_path1 = "caminho/para/erro1.png" 
-erro_img_path2 = "caminho/para/erro2.png"
-Dados de Processamento
-python
-# Lista de números para processamento
-dados = ['01317788162', '54280992519', '45135422488', ...]
-📊 Estatísticas e Monitoramento
-O sistema fornece relatórios completos:
-
-Tempo de execução total e por registro
-
-Contadores por estado de processamento
-
-Taxa de sucesso e detecção de erros
-
-Logs detalhados para auditoria
-
-python
-print(f"Total processado: {total_processados}")
-print(f"Introduzidos: {contador_introduzido}")
-print(f"Em processamento: {contador_em_processamento}")
-print(f"Registados: {contador_registados}")
-print(f"Erros: {numeros_errados}")
-🚨 Gestão de Erros
-Detecção de Falhas
-Timeouts de interface
-
-Imagens não encontradas
-
-Erros de OCR
-
-Estados inesperados
-
-Mecanismos de Recuperação
-
-Fallbacks para diferentes cenários
-
-Logs para debugging
-
-Interrupção segura com Ctrl+C
-
-🔄 Fluxo de Processamento
-1. Fase de Inserção
-text
-Clique PF → Clique Contador → Colar Dado → Enter → Verificar Erro
-2. Fase de Análise
-text
-Captura Tela → OCR → Processar Texto → Identificar Estado
-3. Fase de Ação
-text
-Estado "Registado" → Fluxo Completo
-Estado "Processamento" → Fluxo Simplificado  
-Estado "Introduzido" → Fluxo Padrão
-⚠️ Considerações Importantes
-Requisitos de Sistema
-Resolução consistente da tela
-
-Acesso administrativo para automação
-
-Ambiente estável sem interferências
-
-Backup dos dados antes do processamento
-
-Limitações Conhecidas
-Dependente da estabilidade da interface gráfica
-
-Requer calibração inicial das coordenadas
-
-Sensível a mudanças no layout do CMS
-
-🛡️ Boas Práticas
-Antes da Execução
-bash
-1. Faça backup dos dados
-2. Teste em ambiente controlado
-3. Verifique coordenadas e configurações
-4. Prepare plano de rollback
-Durante a Execução
-bash
-1. Monitore os logs constantemente
-2. Mantenha o sistema estável
-3. Evite interferências manuais
-4. Tenha Ctrl+C preparado para emergências
-🤝 Contribuindo
-Para contribuir com o projeto:
-
-Reporte bugs através de Issues
-
-Sugira melhorias no sistema de automação
-
-Compartilhe configurações para diferentes ambientes
-
-Documente casos de uso específicos
-
-Áreas de Melhoria
-Interface de configuração gráfica
-
-Suporte a múltiplos layouts de CMS
-
-Sistema de templates para diferentes fluxos
-
-Relatórios em PDF automáticos
-
-📄 Licença
-Distribuído sob licença MIT. Veja LICENSE para mais informações.
-
-👤 Autor
-Zerdone Rocha
-
-💼 LinkedIn: Zerdone Rocha
-
-🐙 GitHub: HackMaster300
-
-📈 Resultados e Benefícios
-⏱️ Eficiência
-Redução de 90% no tempo de processamento
-
-Processamento contínuo sem intervenção manual
-
-Escalabilidade para grandes volumes de dados
-
-🎯 Precisão
-Eliminação de erros humanos
-
-Validação automática de dados
-
-Consistência nos processos
-
-📊 Controle
-Logs detalhados para auditoria
-
-Métricas de performance
-
-Detecção proativa de problemas
+# Sistema de Automação CMS — v2.3
+
+![Testes](https://github.com/HackMaster300/Sistema_de_Automacao_CMS_V1.0/actions/workflows/tests.yml/badge.svg)
+![Release](https://img.shields.io/github/v/release/HackMaster300/Sistema_de_Automacao_CMS_V1.0)
+
+Automação RPA (Robotic Process Automation) para inserção e processamento
+de registos num sistema CMS legado sem API — reconhecimento de estado
+via OCR, tratamento de erros de interface, preenchimento condicional de
+formulários e checkpoint para retomar lotes interrompidos.
+
+Reescrita completa de um projeto pessoal originalmente escrito como um
+único script de ~2.850 linhas (v1.0). Ver `CHANGELOG.md` para o
+histórico de versões.
+
+## Porquê reescrever
+
+A v1.0 funcionava, mas tinha os problemas típicos do primeiro projeto
+de RPA de alguém: tudo num único ficheiro, coordenadas e caminhos de
+sistema hardcoded, a mesma sequência de ~120 cliques/teclas copiada e
+colada quatro vezes, e zero testes. Se o processo fosse interrompido a
+meio de um lote de 500 registos, não havia como saber onde parar sem
+reler os logs à mão.
+
+| | v1.0 | v2.3 |
+|---|---|---|
+| Estrutura | 1 ficheiro, 2.850 linhas | Pacote Python instalável (`pip install`) |
+| Coordenadas/OCR/tempos | Hardcoded no código | `appsettings.yaml` externo, git-ignored |
+| Coordenadas — como calibrar | Copiar/colar números à mão | `tools/calibrate_coordinates.py capture` grava direto no appsettings, após confirmação |
+| Dados a processar | Lista Python hardcoded | CSV **ou** Excel, fora do repositório |
+| Execução interrompida | Recomeça do zero | **Checkpoint**: retoma automaticamente os registos ainda pendentes |
+| Sequência de preenchimento | Duplicada 4×, ~500 linhas de teclas soltas | 1 receita de dados, executada por um motor genérico |
+| Visão/Input | Chamadas diretas espalhadas | Interfaces plugáveis, com implementação falsa para testes/`--dry-run` |
+| "Suspeita de fraude" | Processado automaticamente | Retido para revisão manual por omissão |
+| Logs | `print()` | `logging` estruturado (consola + ficheiro) |
+| Testes | Nenhum | 20 testes unitários, sem depender de ecrã |
+| Versionamento | Nenhum | Tags semânticas + Release automática no GitHub |
+| Instalação para quem só usa | Copiar o script, instalar libs à mão | Descompactar o bundle e correr — zero Python, appsettings já incluído |
+
+Ver `legacy/estilo_original_exemplo.py` para uma amostra (anonimizada)
+do estilo original.
+
+## Arquitetura
+
+```
+src/cms_automation/
+├── config.py            # carrega e valida appsettings.yaml (dataclasses)
+├── parsing.py            # texto OCR bruto -> registos estruturados
+├── stats.py               # contadores e relatório final
+├── data_source.py        # CSV/Excel com checkpoint (estado/processado_em)
+├── logging_setup.py      # logging para consola + ficheiro
+├── cli.py                 # ponto de entrada (argparse) / comando `cms-automation`
+├── vision/                # VisionBackend: interface + real (pyautogui/pytesseract) + falsa
+├── input/                 # InputController: interface + real (pyautogui/keyboard) + falsa
+└── workflow/
+    ├── states.py           # enum RecordState + ParsedRecord
+    ├── steps.py             # Step + StepRunner (motor genérico de execução)
+    ├── actions.py           # receitas de preenchimento por estado
+    └── processor.py         # orquestração do lote, com checkpoint
 ```
 
-<div align="center">
-⚡ Automatize processos repetitivos e foque no que realmente importa!
+## Instalação
 
-![](https://img.shields.io/github.com/HackMaster300/Sistema_de_Automacao_CMS_V1.0?style=social)
+### Opção 1 — Bundle completo, pronto a usar (recomendado para quem não é programador)
 
+Cada [release](../../releases) inclui um `.zip` por sistema operativo —
+`cms-automation-windows.zip`, `cms-automation-linux.zip`,
+`cms-automation-macos.zip`. Basta descarregar o do seu SO e
+descompactar. Já vem tudo dentro, pronto a usar:
 
-</div> 
+```
+cms-automation-windows/
+├── cms-automation-windows.exe        # executável principal
+├── calibrate-coordinates-windows.exe # ferramenta de calibração
+├── appsettings.yaml                  # já copiado, pronto para calibrar
+├── dados/identificadores.csv         # dados de exemplo
+├── assets/error_templates/           # pasta pronta para as suas imagens de erro
+├── logs/                             # pasta pronta para os logs
+├── tesseract/                        # (Windows) Tesseract embutido, se o build o conseguiu incluir
+└── COMO_COMECAR.txt                  # guia rápido de arranque
+```
+
+Não precisa de instalar Python, nem copiar `appsettings.example.yaml`
+para `appsettings.yaml` à mão — já vem feito. Siga o `COMO_COMECAR.txt`
+de dentro do bundle.
+
+> **Tesseract OCR:** no bundle do Windows, o processo de release tenta
+> embutir o Tesseract automaticamente (pasta `tesseract/` já incluída,
+> nada a instalar). No Linux/macOS isso ainda não é feito de forma
+> fiável — é preciso um único comando (`sudo apt install tesseract-ocr`
+> ou `brew install tesseract`) antes da primeira execução. O
+> `appsettings.yaml` já vem com `tesseract_cmd: auto`, que deteta
+> sozinho onde o Tesseract está (embutido, ou instalado no sistema).
+
+### Opção 2 — Como pacote Python (`pip`)
+
+```bash
+pip install .
+# fica disponível o comando:
+cms-automation --appsettings config/appsettings.yaml
+```
+
+### Em modo desenvolvimento
+
+```bash
+pip install -e ".[dev]"          # + pytest e build, para contribuir
+pip install -e ".[calibration]"  # + ruamel.yaml, só para usar tools/calibrate_coordinates.py capture
+pip install -e ".[packaging]"    # + pyinstaller, só para gerar os executáveis localmente
+```
+
+### Gerar o bundle localmente
+
+```bash
+pip install -e ".[calibration,packaging]"
+cd packaging
+pyinstaller cms_automation.spec --distpath ../dist --workpath ../build
+pyinstaller calibrate.spec --distpath ../dist --workpath ../build
+cd ..
+python packaging/assemble_bundle.py \
+    --os linux \
+    --exe-path dist/cms-automation \
+    --calibrate-exe-path dist/calibrate-coordinates \
+    --output-dir bundle
+```
+
+## Releases
+
+Cada versão publicada gera automaticamente um pacote instalável
+(`.whl` + `.tar.gz`) anexado a uma GitHub Release, via
+`.github/workflows/release.yml`. Para publicar uma nova versão:
+
+```bash
+# 1. Atualize a versão em pyproject.toml e descreva as mudanças em CHANGELOG.md
+# 2. Crie e envie a tag
+git tag v2.3.0
+git push origin v2.3.0
+```
+
+O workflow corre os testes, constrói o pacote e publica a release
+automaticamente — sem precisar de gerar o `.whl` manualmente.
+
+## Configuração — appsettings.yaml
+
+```bash
+cp config/appsettings.example.yaml config/appsettings.yaml
+```
+
+O `appsettings.yaml` contém apenas configuração de **aplicação**:
+coordenadas de UI, região de OCR, imagens de deteção de erro, tempos de
+espera. Nunca deve ser commitado — está no `.gitignore` porque
+coordenadas e caminhos variam por máquina/resolução.
+
+### Calibrar as coordenadas
+
+Se estiver a usar o bundle (sem Python instalado):
+
+```bash
+./calibrate-coordinates-linux list --appsettings appsettings.yaml
+./calibrate-coordinates-linux capture --appsettings appsettings.yaml
+```
+
+Se estiver a correr a partir do código-fonte:
+
+```bash
+# Lista as coordenadas atuais
+python tools/calibrate_coordinates.py list --appsettings config/appsettings.yaml
+
+# Recalibra todas: para cada uma, posicione o rato e pressione Enter
+python tools/calibrate_coordinates.py capture --appsettings config/appsettings.yaml
+
+# Ou recalibra só algumas
+python tools/calibrate_coordinates.py capture --appsettings config/appsettings.yaml \
+    --only botao_ok_erro,botao_anterior
+```
+
+No fim de um `capture`, é mostrado um resumo (coordenada antiga vs.
+nova) e só é gravado no ficheiro se você confirmar com `s`. A gravação
+preserva todos os comentários e a estrutura do `appsettings.yaml`.
+
+## Dados e checkpoint
+
+Os identificadores a processar vivem num **CSV ou Excel** — nunca no
+código, nunca no `appsettings.yaml`. Formato (ver
+`data/sample_identifiers.csv`):
+
+| identificador | estado | processado_em |
+|---|---|---|
+| 00000000001 | pendente | |
+| 00000000002 | concluido | 2026-09-01T10:15:00 |
+| 00000000003 | erro | 2026-09-01T10:16:30 |
+
+- `estado` pode ser `pendente`, `concluido` ou `erro`. Se a coluna não
+  existir, todas as linhas são tratadas como `pendente`.
+- A cada identificador processado, o ficheiro é **atualizado
+  imediatamente** (checkpoint) — não só no fim do lote.
+- Ao correr novamente com o mesmo ficheiro, apenas as linhas ainda
+  `pendente` são processadas. Um lote interrompido a meio retoma
+  sozinho de onde parou, sem reprocessar o que já foi feito.
+- Para reprocessar algo marcado `erro`, edite a célula/coluna `estado`
+  de volta para `pendente` (ou apague o valor).
+
+Excel funciona da mesma forma — basta apontar `--data caminho.xlsx`; as
+colunas `estado`/`processado_em` são criadas automaticamente na
+primeira execução, se ainda não existirem.
+
+> **Importante:** nem o ficheiro de dados nem o `appsettings.yaml` são
+> criados automaticamente por nada neste projeto — ambos têm de já
+> existir antes de correr a automação ou a calibração. Isto é
+> intencional: evita rodar um lote silenciosamente contra um ficheiro
+> vazio criado por engano, ou sobrescrever coordenadas que nunca foram
+> calibradas. Se o ficheiro não existir, cada ponto de entrada
+> (`load_config`, `open_data_source`, `calibrate_coordinates.py`)
+> falha com uma mensagem clara em vez de criar algo do zero.
+
+## Uso
+
+```bash
+# Simula a execução sem mexer no rato/teclado nem ler o ecrã
+cms-automation --appsettings config/appsettings.yaml --dry-run
+
+# Execução real, com um ficheiro de dados específico
+cms-automation --appsettings config/appsettings.yaml --data data/lote_2026_01.xlsx
+
+# --config continua a funcionar como alias de --appsettings
+cms-automation --config config/appsettings.yaml
+```
+
+## Testes
+
+```bash
+pytest tests/ -v
+```
+
+Os 20 testes correm sobre `FakeInputController`, `FakeVisionBackend` e
+ficheiros temporários de checkpoint — nenhum precisa de ecrã real,
+Tesseract instalado, ou um CMS de verdade.
+
+## Segurança e revisão de casos sinalizados
+
+Por omissão (`require_confirmation_for_fraud_flag: true`), qualquer
+registo cujo texto OCR contenha "suspeita de fraude" **não** é
+processado automaticamente — fica contabilizado e registado em log
+para revisão manual. Casos sinalizados para revisão humana devem passar
+por confirmação de um analista antes de qualquer preenchimento
+automático, mesmo quando o sistema legado permitiria fazê-lo sem
+intervenção.
+
+## Limitações conhecidas
+
+- Continua a depender de coordenadas de ecrã fixas e de uma
+  resolução/layout estável do CMS — é a natureza de RPA baseado em UI.
+- `form_defaults` (em `appsettings.yaml`) ainda usa valores fixos para
+  alguns campos técnicos do formulário. No sistema legado, esses campos
+  só precisam de estar preenchidos com algum valor para o registo poder
+  ser submetido — o próprio sistema depois recalcula/corrige a partir
+  dos dados reais do contador já existentes na base de dados. Os
+  valores fixos cumprem esse requisito; não substituem os dados reais.
+- Sensível a mudanças de layout do sistema legado.
+
+## Autor
+
+Zerdone Rocha — [LinkedIn](#) · [GitHub](https://github.com/HackMaster300)
+
+## Licença
+
+MIT — ver `LICENSE`.

@@ -1,0 +1,142 @@
+name: Release
+
+# Dispara sempre que uma tag no formato v1.2.3 é enviada ao repositório:
+#   git tag v2.3.0 && git push origin v2.3.0
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          pytest tests/ -v
+
+  build-python-package:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Construir sdist + wheel
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-package
+          path: dist/*
+
+  build-bundle:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            os_name: linux
+            asset_name: cms-automation-linux
+            exe_ext: ""
+          - os: windows-latest
+            os_name: windows
+            asset_name: cms-automation-windows
+            exe_ext: ".exe"
+          - os: macos-latest
+            os_name: macos
+            asset_name: cms-automation-macos
+            exe_ext: ""
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar o pacote e ferramentas de build
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[calibration,packaging]"
+
+      - name: Construir os dois executáveis
+        working-directory: packaging
+        run: |
+          pyinstaller cms_automation.spec --distpath ../dist --workpath ../build
+          pyinstaller calibrate.spec --distpath ../dist --workpath ../build
+
+      # Melhor esforço: no Windows, tenta instalar o Tesseract via
+      # Chocolatey e embutir a instalação inteira no bundle, para que o
+      # utilizador final não precise de o instalar à parte. Se isto
+      # falhar, o passo seguinte simplesmente não encontra a pasta e o
+      # bundle segue sem Tesseract embutido (o utilizador instala à
+      # parte, como seria de qualquer forma sem este passo).
+      - name: (Windows) Tentar instalar e embutir o Tesseract
+        if: matrix.os_name == 'windows'
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          choco install tesseract -y --no-progress
+          $installedPath = "C:\Program Files\Tesseract-OCR"
+          if (Test-Path $installedPath) {
+            Copy-Item -Path $installedPath -Destination "tesseract_bundle" -Recurse
+          }
+
+      - name: Renomear executáveis para o nome final
+        shell: bash
+        run: |
+          mv "dist/cms-automation${{ matrix.exe_ext }}" "dist/${{ matrix.asset_name }}${{ matrix.exe_ext }}"
+          mv "dist/calibrate-coordinates${{ matrix.exe_ext }}" "dist/calibrate-coordinates-${{ matrix.os_name }}${{ matrix.exe_ext }}"
+
+      - name: Montar o bundle completo (appsettings, dados de exemplo, guia rápido, ...)
+        shell: bash
+        run: |
+          EXTRA_ARGS=""
+          if [ -d "tesseract_bundle" ]; then
+            EXTRA_ARGS="--tesseract-dir tesseract_bundle"
+          fi
+          python packaging/assemble_bundle.py \
+            --os ${{ matrix.os_name }} \
+            --exe-path "dist/${{ matrix.asset_name }}${{ matrix.exe_ext }}" \
+            --calibrate-exe-path "dist/calibrate-coordinates-${{ matrix.os_name }}${{ matrix.exe_ext }}" \
+            --output-dir "bundle" \
+            $EXTRA_ARGS
+
+      - name: Compactar o bundle
+        shell: bash
+        run: |
+          cd bundle
+          if [ "${{ matrix.os_name }}" = "windows" ]; then
+            7z a -tzip "../${{ matrix.asset_name }}.zip" .
+          else
+            zip -r "../${{ matrix.asset_name }}.zip" .
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset_name }}
+          path: ${{ matrix.asset_name }}.zip
+
+  publish-release:
+    needs: [build-python-package, build-bundle]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Publicar GitHub Release com todos os artefactos
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*
+          generate_release_notes: true
