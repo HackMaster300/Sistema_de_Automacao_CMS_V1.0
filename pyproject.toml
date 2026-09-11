@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cms-automation"
-version = "2.3.0"
+version = "2.4.0"
 description = "Automação RPA modular para inserção de dados num sistema CMS legado"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -26,6 +26,9 @@ packaging = ["pyinstaller>=6.0.0"]
 
 [project.scripts]
 cms-automation = "cms_automation.cli:main"
+
+[project.gui-scripts]
+cms-automation-gui = "cms_automation.gui.app:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

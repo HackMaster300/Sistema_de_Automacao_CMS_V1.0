@@ -129,6 +129,7 @@ def process_batch(
     input_ctrl: InputController,
     vision: VisionBackend,
     stats: ProcessingStats | None = None,
+    cancel_event=None,
 ) -> ProcessingStats:
     """Processa apenas os registos ainda "pendente" na fonte de dados.
 
@@ -137,6 +138,11 @@ def process_batch(
     checkpoint: se o processo for interrompido, a próxima execução
     retoma automaticamente a partir dos registos que ainda faltam,
     sem reprocessar os já feitos.
+
+    `cancel_event` é opcional (um `threading.Event`, tipicamente vindo
+    da GUI): se for passado e for sinalizado, o lote pára de forma
+    limpa a seguir ao identificador em curso — nunca a meio de um, para
+    não deixar o checkpoint inconsistente.
     """
     stats = stats or ProcessingStats()
     runner = StepRunner(config, input_ctrl, vision)
@@ -149,6 +155,10 @@ def process_batch(
     )
 
     for record_data in pendentes:
+        if cancel_event is not None and cancel_event.is_set():
+            logger.info("Cancelamento solicitado — a parar antes do próximo identificador.")
+            break
+
         identifier = record_data.identificador
         logger.info("Processando identificador: %s", identifier)
 

@@ -16,9 +16,11 @@ jobs:
         with:
           python-version: "3.12"
       - run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-tk xvfb
           python -m pip install --upgrade pip
-          pip install -e ".[dev]"
-          pytest tests/ -v
+          pip install -e ".[dev,calibration]"
+          xvfb-run -a pytest tests/ -v
 
   build-python-package:
     needs: test
@@ -62,16 +64,21 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: (Linux) Instalar Tk (necessário para compilar a GUI)
+        if: matrix.os_name == 'linux'
+        run: sudo apt-get update && sudo apt-get install -y python3-tk
+
       - name: Instalar o pacote e ferramentas de build
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[calibration,packaging]"
 
-      - name: Construir os dois executáveis
+      - name: Construir os três executáveis
         working-directory: packaging
         run: |
           pyinstaller cms_automation.spec --distpath ../dist --workpath ../build
           pyinstaller calibrate.spec --distpath ../dist --workpath ../build
+          pyinstaller gui.spec --distpath ../dist --workpath ../build
 
       # Melhor esforço: no Windows, tenta instalar o Tesseract via
       # Chocolatey e embutir a instalação inteira no bundle, para que o
@@ -95,6 +102,7 @@ jobs:
         run: |
           mv "dist/cms-automation${{ matrix.exe_ext }}" "dist/${{ matrix.asset_name }}${{ matrix.exe_ext }}"
           mv "dist/calibrate-coordinates${{ matrix.exe_ext }}" "dist/calibrate-coordinates-${{ matrix.os_name }}${{ matrix.exe_ext }}"
+          mv "dist/cms-automation-gui${{ matrix.exe_ext }}" "dist/cms-automation-gui-${{ matrix.os_name }}${{ matrix.exe_ext }}"
 
       - name: Montar o bundle completo (appsettings, dados de exemplo, guia rápido, ...)
         shell: bash
@@ -107,6 +115,7 @@ jobs:
             --os ${{ matrix.os_name }} \
             --exe-path "dist/${{ matrix.asset_name }}${{ matrix.exe_ext }}" \
             --calibrate-exe-path "dist/calibrate-coordinates-${{ matrix.os_name }}${{ matrix.exe_ext }}" \
+            --gui-exe-path "dist/cms-automation-gui-${{ matrix.os_name }}${{ matrix.exe_ext }}" \
             --output-dir "bundle" \
             $EXTRA_ARGS
 

@@ -1,4 +1,4 @@
-# Sistema de Automação CMS — v2.3
+# Sistema de Automação CMS — v2.4
 
 ![Testes](https://github.com/HackMaster300/Sistema_de_Automacao_CMS_V1.0/actions/workflows/tests.yml/badge.svg)
 ![Release](https://img.shields.io/github/v/release/HackMaster300/Sistema_de_Automacao_CMS_V1.0)
@@ -21,7 +21,7 @@ colada quatro vezes, e zero testes. Se o processo fosse interrompido a
 meio de um lote de 500 registos, não havia como saber onde parar sem
 reler os logs à mão.
 
-| | v1.0 | v2.3 |
+| | v1.0 | v2.4 |
 |---|---|---|
 | Estrutura | 1 ficheiro, 2.850 linhas | Pacote Python instalável (`pip install`) |
 | Coordenadas/OCR/tempos | Hardcoded no código | `appsettings.yaml` externo, git-ignored |
@@ -32,9 +32,10 @@ reler os logs à mão.
 | Visão/Input | Chamadas diretas espalhadas | Interfaces plugáveis, com implementação falsa para testes/`--dry-run` |
 | "Suspeita de fraude" | Processado automaticamente | Retido para revisão manual por omissão |
 | Logs | `print()` | `logging` estruturado (consola + ficheiro) |
-| Testes | Nenhum | 20 testes unitários, sem depender de ecrã |
+| Testes | Nenhum | 41 testes (unitários + GUI real via Xvfb) |
 | Versionamento | Nenhum | Tags semânticas + Release automática no GitHub |
 | Instalação para quem só usa | Copiar o script, instalar libs à mão | Descompactar o bundle e correr — zero Python, appsettings já incluído |
+| Interface | GUI antiga: 1 thread só, trava durante o processamento | GUI nova: automação em thread de fundo, nunca trava; janela de calibração embutida |
 
 Ver `legacy/estilo_original_exemplo.py` para uma amostra (anonimizada)
 do estilo original.
@@ -51,12 +52,22 @@ src/cms_automation/
 ├── cli.py                 # ponto de entrada (argparse) / comando `cms-automation`
 ├── vision/                # VisionBackend: interface + real (pyautogui/pytesseract) + falsa
 ├── input/                 # InputController: interface + real (pyautogui/keyboard) + falsa
+├── appsettings_editor.py # leitura/escrita do appsettings.yaml preservando comentários (CLI e GUI partilham isto)
+├── gui/                   # interface gráfica (Tkinter) — mais um "adaptador" sobre o mesmo núcleo
+│   ├── app.py              # janela principal: iniciar/cancelar, progresso, log, calibração
+│   ├── log_bridge.py       # ponte thread-safe entre logging e a GUI
+│   └── log_filter.py       # filtragem de logs por data/categoria (lógica pura, testável)
 └── workflow/
     ├── states.py           # enum RecordState + ParsedRecord
     ├── steps.py             # Step + StepRunner (motor genérico de execução)
     ├── actions.py           # receitas de preenchimento por estado
-    └── processor.py         # orquestração do lote, com checkpoint
+    └── processor.py         # orquestração do lote, com checkpoint e cancelamento cooperativo
 ```
+
+A GUI não duplica nenhuma lógica de negócio — chama exatamente
+`process_batch()`, o mesmo que o CLI chama, só que numa
+`threading.Thread` de fundo (para a janela nunca travar) e com um
+`threading.Event` para cancelar de forma limpa a meio de um lote.
 
 ## Instalação
 
@@ -69,11 +80,12 @@ descompactar. Já vem tudo dentro, pronto a usar:
 
 ```
 cms-automation-windows/
-├── cms-automation-windows.exe        # executável principal
-├── calibrate-coordinates-windows.exe # ferramenta de calibração
+├── cms-automation-windows.exe        # executável principal (linha de comandos)
+├── cms-automation-gui-windows.exe    # interface gráfica
+├── calibrate-coordinates-windows.exe # ferramenta de calibração (linha de comandos)
 ├── appsettings.yaml                  # já copiado, pronto para calibrar
 ├── dados/identificadores.csv         # dados de exemplo
-├── assets/error_templates/           # pasta pronta para as suas imagens de erro
+├── assets/error_templates/           # imagens de exemplo para deteção de erro
 ├── logs/                             # pasta pronta para os logs
 ├── tesseract/                        # (Windows) Tesseract embutido, se o build o conseguiu incluir
 └── COMO_COMECAR.txt                  # guia rápido de arranque
@@ -131,8 +143,8 @@ Cada versão publicada gera automaticamente um pacote instalável
 ```bash
 # 1. Atualize a versão em pyproject.toml e descreva as mudanças em CHANGELOG.md
 # 2. Crie e envie a tag
-git tag v2.3.0
-git push origin v2.3.0
+git tag v2.4.0
+git push origin v2.4.0
 ```
 
 O workflow corre os testes, constrói o pacote e publica a release
@@ -224,13 +236,50 @@ cms-automation --appsettings config/appsettings.yaml --data data/lote_2026_01.xl
 cms-automation --config config/appsettings.yaml
 ```
 
+## Interface gráfica
+
+Para quem prefere não usar a linha de comandos:
+
+```bash
+cms-automation-gui                     # a partir do bundle
+python -m cms_automation.gui.app       # a partir do código-fonte
+```
+
+A janela permite escolher o `appsettings.yaml` e o ficheiro de dados,
+tem botões Iniciar/Cancelar, barra de progresso, estatísticas em tempo
+real, um log filtrável por data/categoria, e uma janela de calibração
+de coordenadas embutida (equivalente ao `calibrate_coordinates.py
+capture`, mas gráfico).
+
+A automação corre numa `threading.Thread` de fundo — a janela nunca
+fica travada durante o processamento. O botão "Cancelar" usa um
+`threading.Event`: o lote pára de forma limpa a seguir ao identificador
+em curso (nunca a meio de um), preservando o checkpoint.
+
+> Correr a partir do código-fonte requer o Tk instalado no sistema
+> (`sudo apt install python3-tk` no Linux; já vem com o instalador
+> oficial do Python no Windows/macOS). Os executáveis do bundle já
+> trazem isso embutido.
+
 ## Testes
 
 ```bash
+pip install -e ".[dev,calibration]"
 pytest tests/ -v
 ```
 
-Os 20 testes correm sobre `FakeInputController`, `FakeVisionBackend` e
+Os testes de GUI (`test_gui_smoke.py`) usam um Tkinter real (não
+mockado) para apanhar bugs que só aparecem ao correr de verdade — como
+o que foi encontrado durante o desenvolvimento (ler uma variável do
+Tkinter de dentro da thread de trabalho, o que rebenta). Se não houver
+display disponível, são saltados automaticamente em vez de falhar:
+
+```bash
+sudo apt install python3-tk xvfb   # só para correr os testes de GUI
+xvfb-run -a pytest tests/ -v
+```
+
+Os restantes testes correm sobre `FakeInputController`, `FakeVisionBackend` e
 ficheiros temporários de checkpoint — nenhum precisa de ecrã real,
 Tesseract instalado, ou um CMS de verdade.
 

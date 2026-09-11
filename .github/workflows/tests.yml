@@ -21,10 +21,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Instalar dependências
+      - name: Instalar dependências (incl. Tk/Xvfb para testes de GUI)
         run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-tk xvfb
           python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+          pip install -e ".[dev,calibration]"
 
-      - name: Rodar testes
-        run: pytest tests/ -v
+      - name: Rodar testes (com display virtual para os testes de GUI)
+        run: xvfb-run -a pytest tests/ -v

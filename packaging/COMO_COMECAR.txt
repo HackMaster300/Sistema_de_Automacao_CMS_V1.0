@@ -4,6 +4,17 @@ COMO COMEÇAR
 Este pacote já vem pronto a usar — não precisa de instalar Python nem
 copiar ficheiros de configuração.
 
+0. PREFERE UMA INTERFACE GRÁFICA?
+
+   Windows:  cms-automation-gui-windows.exe
+   Linux:    ./cms-automation-gui-linux
+   macOS:    ./cms-automation-gui-macos
+
+   Abre uma janela onde escolhe o appsettings.yaml e o ficheiro de
+   dados, com botão Iniciar/Cancelar, barra de progresso, estatísticas
+   e um log filtrável — sem usar a linha de comandos. Os passos 1-4
+   abaixo são para quem prefere a linha de comandos.
+
 1. TESTE SEM MEXER EM NADA (modo simulação)
 
    Windows:  cms-automation-windows.exe --appsettings appsettings.yaml --dry-run
@@ -33,6 +44,8 @@ copiar ficheiros de configuração.
 
    Para cada botão, posicione o rato sobre ele na janela do CMS e
    pressione Enter. No fim, confirme para gravar.
+
+   (Ou, na interface gráfica: botão "Calibrar coordenadas...".)
 
 4. PREPARE OS SEUS DADOS
 

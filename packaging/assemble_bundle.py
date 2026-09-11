@@ -18,9 +18,25 @@ from __future__ import annotations
 
 import argparse
 import shutil
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "src"))
+
+
+def _fix_relative_paths_for_bundle(appsettings_path: Path) -> None:
+    """Reescreve os caminhos de error_templates de "../assets/..." (como
+    estão no repositório, relativos a config/) para "assets/..." (como
+    devem ficar no bundle, onde appsettings.yaml está na raiz)."""
+    from cms_automation.appsettings_editor import load_editable, save_editable
+
+    yaml, data = load_editable(appsettings_path)
+    templates = data.get("error_templates") or {}
+    for key in ("primary", "secondary", "tertiary"):
+        if key in templates and isinstance(templates[key], str):
+            templates[key] = templates[key].replace("../assets/", "assets/")
+    save_editable(yaml, data, appsettings_path)
 
 
 def assemble(
@@ -29,6 +45,7 @@ def assemble(
     calibrate_exe_path: Path,
     output_dir: Path,
     tesseract_dir: Path | None,
+    gui_exe_path: Path | None = None,
 ) -> None:
     if output_dir.exists():
         shutil.rmtree(output_dir)
@@ -37,9 +54,13 @@ def assemble(
     # Executáveis
     shutil.copy2(exe_path, output_dir / exe_path.name)
     shutil.copy2(calibrate_exe_path, output_dir / calibrate_exe_path.name)
+    names_to_chmod = [exe_path.name, calibrate_exe_path.name]
+    if gui_exe_path and gui_exe_path.exists():
+        shutil.copy2(gui_exe_path, output_dir / gui_exe_path.name)
+        names_to_chmod.append(gui_exe_path.name)
     if os_name != "windows":
-        (output_dir / exe_path.name).chmod(0o755)
-        (output_dir / calibrate_exe_path.name).chmod(0o755)
+        for name in names_to_chmod:
+            (output_dir / name).chmod(0o755)
 
     # appsettings.yaml já pronto (copiado do exemplo — nunca gerado do nada)
     shutil.copy2(
@@ -54,9 +75,18 @@ def assemble(
         dados_dir / "identificadores.csv",
     )
 
-    # Pastas necessárias, vazias
-    (output_dir / "assets" / "error_templates").mkdir(parents=True)
+    # Imagens de exemplo de deteção de erro (genéricas, sem dados de clientes)
+    error_templates_dst = output_dir / "assets" / "error_templates"
+    shutil.copytree(ROOT / "assets" / "error_templates", error_templates_dst)
+    (error_templates_dst / ".gitkeep").unlink(missing_ok=True)
+
     (output_dir / "logs").mkdir()
+
+    # No repositório, appsettings.yaml vive em config/ e os caminhos das
+    # imagens de erro são relativos a essa pasta (ex: "../assets/...").
+    # No bundle, appsettings.yaml fica na raiz, ao lado de assets/ — por
+    # isso os caminhos são reescritos para não terem o "../" a mais.
+    _fix_relative_paths_for_bundle(output_dir / "appsettings.yaml")
 
     # Guia rápido e documentação
     shutil.copy2(ROOT / "packaging" / "COMO_COMECAR.txt", output_dir / "COMO_COMECAR.txt")
@@ -81,6 +111,7 @@ def main() -> int:
     parser.add_argument("--os", required=True, choices=["linux", "windows", "macos"])
     parser.add_argument("--exe-path", required=True, type=Path)
     parser.add_argument("--calibrate-exe-path", required=True, type=Path)
+    parser.add_argument("--gui-exe-path", type=Path, default=None)
     parser.add_argument("--output-dir", required=True, type=Path)
     parser.add_argument(
         "--tesseract-dir",
@@ -91,7 +122,12 @@ def main() -> int:
     args = parser.parse_args()
 
     assemble(
-        args.os, args.exe_path, args.calibrate_exe_path, args.output_dir, args.tesseract_dir
+        args.os,
+        args.exe_path,
+        args.calibrate_exe_path,
+        args.output_dir,
+        args.tesseract_dir,
+        gui_exe_path=args.gui_exe_path,
     )
     return 0
 

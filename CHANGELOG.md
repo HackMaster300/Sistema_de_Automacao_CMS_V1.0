@@ -2,6 +2,33 @@
 
 Este projeto segue [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [2.4.0] — 2026-09
+
+### Adicionado
+- **Interface gráfica (Tkinter)**, incorporada como mais um ponto de
+  entrada do mesmo núcleo já existente (`cms_automation.gui`) — não
+  duplica nenhuma lógica de negócio:
+  - campos para escolher `appsettings.yaml` e o ficheiro de dados;
+  - botões Iniciar/Cancelar, com a automação a correr numa thread de
+    fundo (a janela nunca trava, ao contrário do projeto original que
+    deu origem a esta funcionalidade);
+  - barra de progresso e estatísticas em tempo real;
+  - log filtrável por data e categoria;
+  - janela de calibração de coordenadas embutida (sem depender de um
+    script externo, ao contrário do original).
+- Cancelamento cooperativo em `process_batch()` via `threading.Event`
+  — o lote pára de forma limpa a seguir ao identificador em curso,
+  nunca a meio, para não corromper o checkpoint.
+- `cms_automation.appsettings_editor` — a leitura/escrita do
+  appsettings.yaml (preservando comentários) deixou de estar duplicada
+  entre a ferramenta CLI e a GUI; agora é partilhada por ambas.
+- Terceiro executável (`cms-automation-gui-<so>`) incluído no bundle de
+  cada release, ao lado dos já existentes.
+- Imagens de exemplo reais para deteção de erro (`assets/error_templates/`),
+  reaproveitadas de diálogos genéricos do sistema (sem dados de clientes).
+- 10 novos testes: 5 de fumaça da GUI (com Tkinter real, via Xvfb no
+  CI) e 2 de cancelamento cooperativo, entre outros.
+
 ## [2.3.0] — 2026-09
 
 ### Adicionado
